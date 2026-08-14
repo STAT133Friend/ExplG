@@ -1,0 +1,275 @@
+---
+title: "Exploration G - Notes"
+format: pdf
+editor: visual
+---
+
+# Two Proportions or Two Means
+
+In this Exploration, we will explore how to use R to perform theory-based tests of significance in scenarios when we have two proportions or two means. We'll start with the two-proportion scenario.
+
+## Two Proportions
+
+Sometimes we want to compare two proportions and determine if they are significantly different from one another. This scenario arises when we have a binary (categorical) explanatory variable and a binary (categorical) response variable. Let's see an example.
+
+**Research question:** is the proportion of male students at the University of Illinois (U of I) that are graduate students larger than the proportion of female students at the U of I that are graduate students?
+
+In this case, the gender of the students is a categorical explanatory variable, and whether a student is an undergraduate or graduate student is a categorical response variable. Suppose we took a random sample of 2000 male students and 2000 female students and found the following.
+
+|                   | Men  | Women |
+|-------------------|------|-------|
+| **Undergraduate** | 1236 | 1298  |
+| **Graduate**      | 764  | 702   |
+| **Totals**        | 2000 | 2000  |
+
+In such a scenario, our parameters are two true proportions of graduate students:
+
+-   Let $\pi_m$ be the proportion of male students at the U of I that are graduate students.
+
+-   Let $\pi_f$ be the proportion of female students at the U of I that are graduate students.
+
+Our null and alternative hypothesis can be set up as follows:
+
+-   $H_0: \pi_m - \pi_f = 0$ (the difference between the proportions is 0, meaning the proportions are equal)
+
+-   $H_a: \pi_m - \pi_f > 0$ (the difference between the proportions is greater than 0, or the proportion of male graduate students is higher than the proportion of female graduate students)
+
+In other scenarios, we might just want to know if our two proportions are *different* rather than one being greater than the other. In that case our alternative hypothesis would be $H_a: \pi_m - \pi_f \neq 0$ instead, and we would refer to this as a "two-sided test". For now we will stick with the "greater than" alternative hypothesis.
+
+### Theory for Two Proportions
+
+The theory based test for two proportions that we usually use is a *z-test for two proportions*. The *z-statistic* is computed as follows: $$ z = \frac{\hat{p}_1 - \hat{p}_2}{\sqrt{\hat{p}(1-\hat{p})(\frac{1}{n_1}+ \frac{1}{n_2})}} $$where $\hat{p}_1$ and $\hat{p}_2$ are the proportions of "successes" in each of our two groups, $n_1$ and $n_2$ are the total number of observations in each of our two groups, and $\hat{p}$ is the total number of successes overall divided by the total number of observations overall (the "pooled" proportion of successes).
+
+#### Significance
+
+The z-statistic tells us *how many standard deviations the observed statistic is away from the mean.* If it is **more than two standard deviations from the mean** (either in the positive or negative direction), we generally consider it to be significant, though different numbers of standard deviations are sometimes used.
+
+Equivalently, we can also talk about significance via a *p-value*. Remember that a p-value measure *the probability that a given result would occur under the assumptions of our null hypothesis*. Usually, a **p-value less than 0.05 is considered significant**, though different *significance levels* are sometimes used (e.g. 0.1 or 0.01). We will see shortly how to compute the p-value using R.
+
+#### Confidence Intervals
+
+Recall from earlier that our hypotheses for the grad student scenario were the following:
+
+-   $H_0: \pi_m - \pi_f = 0$
+
+-   $H_a: \pi_m - \pi_f > 0$
+
+Suppose for a moment that we performed a z-test for two proportions and the p-value indicated that we should reject the null hypothesis. This means we would have strong evidence that the proportion of males that are grad students is larger than the proportion of females that are grad students. However, we might wonder how much larger that proportion is. This is what a *confidence interval* can estimate.
+
+A confidence interval gives us a range of plausible values for $\pi_m - \pi_f$. The *confidence level* for a confidence interval tells us how confident we should be that $\pi_m - \pi_f$ is in our interval. For example, suppose $(0.22,0.31)$ was our 95% confidence interval. Then the following would be our interpretation of this confidence interval:
+
+> We are 95% confident that the true difference ($\pi_m - \pi_f$) between the proportion of males that are grad students and the proportion of females that are grad students is between 0.22 and 0.31.
+
+Notice that if your 95% confidence interval contains 0, then you will not have found significant evidence to reject the null hypothesis using 0.05 as your significance level (since 0 is a plausible value of the true parameter).
+
+#### Validity Conditions
+
+In general, we require the following *validity condition* to be met in order for it to be appropriate to use the theory-based z-test for two proportions:
+
+-   There should be at least 10 observations in each of the four cells of the 2x2 table of data.
+
+Looking at the data from the U of I sample, the four cells contain 1236, 1298, 764, and 702 observations; since each of these is larger than 10, our data does meet the validity conditions.
+
+### Using R for Two Proportions
+
+To perform a z-test in R, we use the `prop.test()` function. In this class, when we use this function, it will usually have the following inputs:
+
+-   `x` is a vector containing the number of "successes" for each category of the explanatory variable. You input will usually look like this: `x = c(s1, s2)`, where here you would replace `s1` and `s2` with the number of success of the first and second categories. *An alternative way to format the input is explained in the practice problems.*
+
+-   `n` is a vector containing the total number of "trials" (i.e. the number of observations) for each category of the explanatory variable. You input will usually look like this: `n = c(n1, n2)`, where here `n1` should be the sum of the successes and failures in category 1, and `n2` should be the sum of the successes and failures in category 2. *An alternative way to format the input is explained in the practice problems.*
+
+-   `alternative` is where you specify what kind of alternative hypothesis you have. You options are `"two.sided"`, `"greater"`, or `"less"`. So for example, if your alternative hypothesis was $\pi_1 - \pi_2 > 0$, you would use `alternative = "greater"`.
+
+-   `conf.level` is where you specify the confidence level you would like to use for creating a confidence interval. Usually we will use a confidence level of `0.95` (corresponding to a 0.05 significance level), in which case you would enter `conf.level=0.95`. Other typical confidence levels include `0.99` and `0.90` (corresponding to 0.01 and 0.1 significance levels, respectively).
+
+-   In this class we will always include `correct = FALSE` as an argument. This turns off a particular statistical correction that we won't use.
+
+Let's test `prop.test()` out with our example above. Run the code block below.
+
+```{r}
+# "Success" for males (ie number of male grad students)
+male_grad <- 764
+
+# "Success" for females (ie number of female grad students)
+female_grad <- 702
+
+# Total male students
+male_total <- 2000
+
+# Total female students
+female_total <- 2000
+
+# Performing the z-test
+grads_ztest <- prop.test(
+  x = c(male_grad, female_grad),
+  n = c(male_total, female_total),
+  alternative = "greater",
+  conf.level = 0.95,
+  correct = FALSE
+)
+
+grads_ztest
+```
+
+This outputs a lot of information. Let's discuss a few useful pieces of information from this output.
+
+-   At the top it says `2-sample test for equality of proportions without continuity correction`. This confirms for us that we did the correct test: we had two categories, computed a proportion for each category, and wanted to know if those two proportions are equal.
+
+-   Where it says `data`, we can check that we have included the correct data to use to compute our test.
+
+-   The `X-squared` is actually the square of our z-statistic. If we want to compute our actual z-statistic. If you want the actual z-statistic, you can use the `sqrt()` function to take the square root of the displayed `X-squared` statistic.
+
+-   The output shows a `p-value`. Depending on your significance level, you can use this to determine whether you should reject the null hypothesis. With 0.05 as your significance level, in the above, our p-value indicates that we should reject the null hypothesis.
+
+-   The output displays what type of alternative hypothesis you used: greater (\>), less than (\<), or two-sided ($\neq$).
+
+-   The upper and lower bounds of a confidence interval are shown. It also shows what confidence level you chose.
+
+-   Lastly, it displays the sample proportions from both categories; i.e. it shows the proportion of male students that are graduate students (`0.382`)and it shows the proportion of female students that are graduate students (`0.351`).
+
+Notice that we saved the output of `prop.test` as a variable called `grads_ztest`. We can therefore access individual elements from the output of the test. We can use the names function to see what values we can access. We can then use the `$` notation to access individual values from the output of our test.
+
+```{r}
+# Shows what values are accessible
+names(grads_ztest)
+
+# Accessing the X-squared statistic
+grads_ztest$statistic
+
+# Accessing the p-value
+grads_ztest$p.value
+
+# Accessing the sample proportions
+grads_ztest$estimate
+```
+
+Recall that the chi-squared displayed is the square of our z-statistic. Therefore, to compute our z-statistic, we can access the chi-squared statistic (as demonstrated above) and take its square root.
+
+```{r}
+# computing z-statistic
+# note that it will still display the name "X-squared"
+z_stat <- sqrt(grads_ztest$statistic)
+z_stat
+
+# to change the name of the z-statistic
+names(z_stat) <- "z-statistic"
+z_stat
+```
+
+## Two Means
+
+Sometimes we want to compare two means and determine if they are significantly different from one another. This scenario arises when we have a binary (categorical) explanatory variable and a quantitative response variable. Let's see an example.
+
+**Research question:** does feeding baby chickens different types of food after birth significantly affect their mean birth weights?
+
+For this example, we will be using the built in data set called `ChickWeight` which shows the weight of various chicks at differing times after birth, and using different types of food. Specifically, we will look at the chicks birth weights on day 20, and we will compare chicks fed food 1 to chicks fed food 3. Below is some code where I have taken subsets of a larger data frame that I will use throughout the example.
+
+```{r}
+# Creating a subset of ChickWeight
+# Includes only weights at day 20
+# Also only includes foods 1 and 3
+day20_food1 <- subset(ChickWeight, Time == 20 & Diet == 1 )
+day20_food3 <- subset(ChickWeight, Time == 20 & Diet == 3 )
+```
+
+Suppose we want to know if the mean chick weight from food 3 is different than the mean chick weight from food 1. If we let $\mu_1$ be the mean weight on day 20 of the chicks that ate food 1 and $\mu_3$ be the mean weight of the chicks on day 20 that ate food 3, then our hypotheses will be
+
+-   $H_0: \mu_3 - \mu_1 = 0$ (difference in weights is 0, or mean weights are the same)
+
+-   $H_a: \mu_3 - \mu_1 \neq 0$ (difference in weights is not equal to 0, or mean weight of chicks on food 3 is different than the mean weight of chicks on food 1)
+
+### Theory for Two Means
+
+The theory based test for two proportions that we usually use is a *t-test for two means*. The *t-statistic* is computed as follows:
+
+$$ t=\frac{\bar{x}_3 - \bar{x}_1 - 0}{\sqrt{\frac{s_3^2}{n_3} + \frac{s_1^2}{n_1}}} $$where here the $\bar{x}_i$ are the sample means for each of the two groups, the $s_i$ are the sample standard deviations for the two groups, and the $n_i$ are the number of observations in each group.
+
+#### Significance
+
+As with the two-proportions case, the t-statistic roughly tells us *how many standard deviations the observed statistic is away from the mean.* If it is **more than two standard deviations from the mean** (either in the positive or negative direction), we generally consider it to be significant. Again, sometimes different numbers of standard deviations are used.
+
+We can also again talk about significance via a *p-value*. As before, a **p-value less than 0.05 is generally considered significant**, (and again sometimes people use other *significance levels* like 0.1 or 0.01). We will see shortly how to compute the p-value using R.
+
+#### Confidence Intervals
+
+Confidence intervals for two means are similar to confidence intervals for two proportions. Again they are used to get an estimate of plausible values for the parameter, which this time is $\mu_3-\mu_1$. Interpreting a confidence interval for two means is very similar to interpreting a confidence interval for two proportions.
+
+#### Validity Conditions
+
+In general, we require the following *validity conditions* to be met in order for it to be appropriate to use the theory-based t-test for two means:
+
+-   The quantitative variable should have a symmetric distribution in both groups, OR you should have at least 20 observations in each group and the sample distributions should not be strongly skewed.
+
+In the case of the chick weights, there are not 20 observations in each group, so we must instead consider if the quantitative variable is roughly symmetric in each group. Consider the two distributions below. They are both pretty flat and there is not much extreme variation in the the distributions, so I would say these are roughly symmetric. The distributions don't have to be exactly symmetric, we are just looking for roughly symmetric.
+
+```{r}
+#| warning: false
+library(ggplot2)
+
+# Histogram for food 1
+ggplot(day20_food1, aes(x = weight)) + 
+  geom_dotplot() + 
+  labs(title="Food 1", x = "Weight (grams")
+
+# Histogram for food 3
+ggplot(day20_food3, aes(x = weight)) +
+  geom_dotplot() +
+  labs(title="Food 3", x = "Weight (grams")
+```
+
+### Using R for Two Means
+
+To perform a t-test in R, we use the `t.test()` function. In this class, when we use this function, it will usually have the following inputs:
+
+-   `x` is a vector containing the observed values from the first category. In the case of the chicks, this would be the weights of the chicks from the food 3 group.
+
+-   `y` is a vector containing the observed values from the second category. In the case of the chicks, this would be the weights of the chicks from the food 1 group.
+
+-   `alternative` is where you specify what kind of alternative hypothesis you have. You options are `"two.sided"`, `"greater"`, or `"less"`. So for example, if your alternative hypothesis was $\mu_3 - \mu_1 \neq 0$, you would use `alternative = "two.sided"`.
+
+-   `conf.level` is where you specify the confidence level you would like to use for creating a confidence interval. Usually we will use a confidence level of `0.95`, in which case you would enter `conf.level=0.95`. Another typical confidence level is `0.99`.
+
+-   If you are conducting a paired t-test, then you should use the `paired = TRUE` attribute. Otherwise, you can use `paired = FALSE`. If you do use the paired t-test, you should make sure that the paired values are correctly lined up in your `x` and `y` vectors.
+
+Let's test this out with our example above. Run the code block below.
+
+```{r}
+chicks_ttest <- t.test(
+  x = day20_food3$weight,
+  y = day20_food1$weight,
+  alternative = "two.sided", 
+  conf.level = 0.95,
+  paired = FALSE
+)
+
+chicks_ttest
+```
+
+This has many similar features to the output of the `prop.test` function.
+
+-   At the top it says `Welch Two Sample t-test`. This confirms for us that we did the correct test.
+
+-   Where it says `data`, we can check that we have included the correct data to use to compute our test.
+
+-   It shows us the value of the `t` statistic. We can see from this example that that indicates strong evidence against the null hypothesis.
+
+-   The output shows a `p-value`. Depending on your preferred level of significance, you can use this to determine whether you should accept or reject the null hypothesis. With 0.05 as your significance level, in the above, our p-value indicates that we should reject the null hypothesis.
+
+-   The output displays what type of alternative hypothesis you used: greater (\>), less than (\<), or two-sided ($\neq$).
+
+-   The upper and lower bounds of a confidence interval are shown. It also shows what confidence level you chose.
+
+-   Lastly, it displays the sample means from both categories; i.e. it should the mean of chick weight on food 3 (`258.9000`)and the mean of chick weight on food 1 (`170.4118`).
+
+Notice that we saved the output of `t.test` as a variable called `chicks_ttest`. We can therefore access individual elements from the output of the test. We can use the names function to see what values we can access. We can then use the `$` notation to access individual values from the output of our test.
+
+```{r}
+# Shows what values are accessible
+names(chicks_ttest)
+
+# Accessing the t-statistic
+chicks_ttest$statistic
+
+# Accessing the p-value
+chicks_ttest$p.value
+```

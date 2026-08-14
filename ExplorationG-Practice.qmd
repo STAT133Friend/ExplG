@@ -1,0 +1,150 @@
+---
+title: "Exploration G - Practice"
+format: pdf
+editor: visual
+---
+
+```{r}
+knitr::opts_chunk$set(tidy.opts = list(width.cutoff = 70), tidy = TRUE)
+```
+
+## Your turn!
+
+Try out the following problems, and then follow the instructions at the end to render and submit the document.
+
+1\. Download the data set `framingham.csv` from **Canvas** if you have not already. This data set is adapted from a data set on *kaggle.com*, and if you would like to know more about the data, please visit this link:[Heart Study Data Set](https://www.kaggle.com/datasets/aasheesh200/framingham-heart-study-dataset). This data come from a study in which researchers were trying to predict when participants had a 10-year risk for coronary heart disease.
+
+Load the data into R studio. If you can't remember how to do this, go back a review the steps in Exploration C. **Make sure you include the line of code necessary for your document to render (see Exploration C).**
+
+You might want to look over the data so that you are familiar with what it looks like before you attempt the next steps below. To do this, after you have loaded in the data set, you can click on the `framingham` data frame in the **Environment** panel (upper right panel).
+
+```{r}
+
+```
+
+### Gender vs. CHD
+
+The first research question we will tackle is the following: is gender a predictor for 10-year risk of future coronary heart disease (CHD)?
+
+Our population parameters will be $\pi_f$ and $\pi_m$ which are the proportion of females that are not at risk for heart disease and the proportion of males that are not at risk for heart disease, respectively. In the `framingham` data set, the `gender` column displays the participant's gender, and the column `TenYearCHD` is 0 if the participant was not at risk for CHD and 1 if they are. We will test the following hypotheses:
+
+-   $H_0: \pi_f - \pi_m = 0$
+
+-   $H_a: \pi_f - \pi_m \neq 0$
+
+2\. Using the `table()` function, create and display a two-way frequency table comparing `gender` to `TenYearCHD`. Store this table as a variable called `t`. **Note that when making the two-way table, the explanatory variable should be the first argument.** (*Hint:* if you do not remember how to use the `table()` function, either look through the Exploration B notes, look at the `help()`, or search on the internet).
+
+Make sure to display `t` as well.
+
+```{r}
+
+```
+
+3\. In the space below, state whether you think the validity conditions are met for using a theory-based z-test, and explain you answer.
+
+***Your answer:***
+
+4\. In the notes you saw one way to use the `prop.test()` function. An alternative way to use the `prop.test()` function is to use a two-way table as your `x` argument and to omit the `n` argument. Using the table `t` that you created in problem 2, use the `prop.test()` function to perform an appropriate z-test. Make sure your `alternative` argument matches the alternative hypothesis, and use 95% as your confidence level.
+
+**Note**: you will have `x=t` as your first argument, and you should not include the `n` argument. All other arguments will remain the same as described in the notes.
+
+You should display the results of your test.
+
+```{r}
+
+```
+
+5\. Compute the z-statistic (which recall is the square root of the `X-square` statistic that is computed from the `prop.test()` function).
+
+Make sure the result is displayed.
+
+```{r}
+
+```
+
+6\. In the space below, write at least two sentences discussing the following:
+
+-   The significance of the results (i.e. should we reject the null hypothesis or not). You should **use the p-value** to discuss the significance of the result.
+
+-   Give a range of appropriate estimates for the true difference in our population proportions and indicate how confident you are that the difference is in this range. You should **use the confidence interval** for this. (*Hint:* You are what percent confident that what is between what and what?)
+
+*You should use a significance level of 0.05 and a confidence level of 95%.*
+
+***Your answer:***
+
+### Gender vs. Cigarettes Per Day
+
+We will now address a second research question: does gender predict the number of cigarettes smoked per day?
+
+We will again use the `gender` column, and we will also now use the `cigsPerDay` column. This is a quantitative variable representing how many cigarettes the participant smokes per day. Now our population parameters will be $\mu_f$ and $\mu_m$ which represent the mean number of cigarettes smoked per day by females and the mean number of cigarettes smoked per day by males, respectively.
+
+The hypotheses that we will test now are the following:
+
+-   $H_0: \mu_f-\mu_m = 0$
+
+-   $H_a: \mu_f - \mu_m \neq 0$
+
+7\. There are some `NA` values included in the `framingham` data frame which will cause issues in some of the calculations we want to perform later if we don't remove them. Create a new data frame called `fram_noNA` that excludes the rows with `NA` values. (*Hint:* this does not require any new methods from this Exploration. You'll want to use the `na.omit()` function, which was introduced in Exploration C).
+
+```{r}
+
+```
+
+8\. Using the `subset()` function, create a new data frame from `fram_noNA` that contains only the rows where `gender` is equal to `female`. Give this data set the variable name `fram_female`. (*Hint:* again, this does not require any new methods from this Exploration. The subset function was also introduced in Exploration C).
+
+```{r}
+
+```
+
+9\. Using the `subset()` function, create a new data frame from `fram_noNA` that contains only the rows where `gender` is equal to `male`. Give this data set the variable name `fram_male`. (*Hint:* again, this does not require any new methods from this Exploration. The subset function was also introduced in Exploration C).
+
+```{r}
+
+```
+
+10\. In the space below, compute the number of rows in the data frames `fram_male` and `fram_female` (you will want to use the `nrow()` function; see Exploration C, use the `help()`, or use the internet if you do not remember how to use this function.
+
+```{r}
+
+```
+
+11\. Create two histograms using whatever method you would like. One histogram should plot the `cigsPerDay` column from the `fram_male` data frame and the other should plot the `cigsPerDay` column from the `fram_female` data frame. (I have already included the line of code to import the ggplot2 library).
+
+```{r}
+library(ggplot2)
+
+```
+
+12\. Use your answers from the previous two questions to state whether you think the data meets the validity conditions to use a theory-based t-test. Write your answer in the space below.
+
+***Your answer:***
+
+13\. Perform a t-test on our data using the `t.test()` function to see if gender predicts number of cigarettes smoked per day. You will want to use the two subset data frames that you created in Problems 8 and 9. Make sure that the `alternative` argument in `t.test()` matches the alternative hypothesis, and use a 95% confidence level.
+
+You should display the results of your test.
+
+```{r}
+
+```
+
+14\. In the space below, write at least two sentences discussing the following:
+
+-   The significance of the results (i.e. should we reject the null hypothesis or not). You should **use the t-statistic** to discuss the significance of the result.
+
+-   Give a range of appropriate estimates for the true difference in our population means and indicate how confident you are that the difference is in this range. You should **use the confidence interval** for this. (*Hint:* You are what percent confident that what is between what and what?)
+
+*Use a significance level of at least 2 standard deviations from the mean, and a confidence level of 95%.*
+
+***Your answer:***
+
+**Rendering Instructions**
+
+a.  Make sure that your file does not have any errors in it, and that it is self-contained! If it contains errors or is not self-contained, the document will not render.
+
+b.  Towards the top left of the RStudio window, you will see a blue arrow and the word "**Render**". Click this. You will see a lot of text show up in the **Background Jobs** pane below. Wait until this text stops.
+
+c.  Once the rendering is complete, you will see a new pdf file in the **"Files"** pane in the lower right pane of RStudio.
+
+d.  Locate the document you want to download and click the check box next to the file name, then select the "**More**" option from the top of the "**Files**"pane (blue gear icon), and then select "**Export**" and then "**Download**".
+
+e.  The file should be downloaded to your downloads folder. You should now be able to go into **Canvas** and upload the pdf and submit it.
